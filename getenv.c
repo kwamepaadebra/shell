@@ -4,7 +4,6 @@
  * _getenv - Get the value of an environment variable
  * @info: Pointer to ArgumentsInfo structure
  * @name: Name of the environment variable
- * 
  * Return: Value of the environment variable, or NULL if not found
  */
 char *_getenv(ArgumentsInfo *info, const char *name)
@@ -28,4 +27,3 @@ char *_getenv(ArgumentsInfo *info, const char *name)
 
 	return (NULL);
 }
-

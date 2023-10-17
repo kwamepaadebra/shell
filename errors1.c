@@ -60,18 +60,16 @@ char *convert_number(long int n, int convert_lowercase, int convert_unsigned)
 		n = -n;
 	}
 
-	if (convert_unsigned)
+	if (int convert_unsigned)
 	{
-		do
-		{
+		do {
 			*--ptr = (n % 10) + '0';
 			n /= 10;
 		} while (n != 0);
 	}
 	else
 	{
-		do
-		{
+		do {
 			*--ptr = (n % 10) + '0';
 			n /= 10;
 		} while (n != 0);

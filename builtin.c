@@ -64,4 +64,3 @@ int _myhelp(ArgumentsInfo *info)
 	printf("env - Display the current environment\n");
 	return (0);
 }
-

@@ -1,63 +1,53 @@
 #include "shell.h"
 
 /**
- * get_input - Read input from the user and store it in a buffer
- * @info: The ArgumentsInfo struct
+ * custom_getline - Custom getline function to read input from the user.
+ *                  Uses a buffer to minimize the read system call.
  *
- * Return: The number of characters read.
+ * Return: A pointer to the line read, NULL on failure or end of input.
  */
-ssize_t get_input(ArgumentsInfo *info)
+char *custom_getline(void)
 {
-	ssize_t n;
-	size_t size = READ_BUFFER_SIZE;
-
-	info->arg = NULL;
-	info->argc = 0;
-	info->line_count = 0;
-
-	n = _getline(info, &(info->arg), &size);
-	if (n == -1)
-	{
-		if (info->arg)
-			free(info->arg);
-		return (n);
-	}
-
-	info->arg[n] = '\0';
-
-	return (n);
-}
-
-/**
- * _getline - Custom getline function
- * @info: The ArgumentsInfo struct
- * @buf: The buffer to store the input
- * @size: The size of the buffer
- *
- * Return: The number of characters read.
- */
-int _getline(ArgumentsInfo *info, char **buf, size_t *size)
-{
-	int n;
+	static char buffer[READ_BUF_SIZE];
+	static int buffer_index;
+	int i = 0;
 	char *line = NULL;
+	int c;
 
-	n = read(STDIN_FILENO, line, *size);
+	/* Initialize buffer_index to 0 if it's uninitialized */
+	if (!buffer_index)
+		buffer_index = 0;
 
-	if (n == -1)
+	while (1)
 	{
-		free(line);
-		return (-1);
-	}
-	else if (n == 0)
-	{
-		free(line);
-		return (-1);
+		/* If buffer is empty, read into the buffer */
+		if (buffer_index == 0)
+		{
+			buffer_index = read(STDIN_FILENO, buffer, READ_BUF_SIZE);
+			if (buffer_index <= 0)
+				return (NULL);  /* Error or end of input */
+		}
+
+		c = buffer[buffer_index - 1];
+		buffer_index--;
+
+		if (c == '\n')
+		{
+			buffer[i] = '\0';
+			line = strdup(buffer);  /* Allocate memory for the line and copy */
+			if (line == NULL)
+				perror("Error: Unable to allocate memory");
+			return (line);
+		}
+
+		buffer[i] = c;
+		i++;
+
+		/* If buffer is empty, reset i and read again */
+		if (buffer_index == 0)
+			i = 0;
 	}
 
-	if (line[n - 1] == '\n')
-		line[n - 1] = '\0';
-
-	*buf = line;
-	return (n);
+	return (NULL);
 }
 

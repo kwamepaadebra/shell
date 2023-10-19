@@ -1,68 +1,41 @@
 #include "shell.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 /**
- * get_history_file_path - Get the path to the history file.
- * @info: Pointer to the ArgumentsInfo structure.
- *
- * Return: Pointer to the history file path or NULL on failure.
+ * history - Fill File By User Input
+ * @input: User Input
+ * Return: -1 Fail 0 Succes
  */
-char *get_history_file_path(ArgumentsInfo *info)
+int history(char *input)
 {
-	char *home_path;
-	char *history_file_path;
-	size_t path_length;
+	char *filename = ".simple_shell_history";
+	ssize_t fd, w;
+	int len = 0;
 
-	home_path = _getenv(info, "HOME");
-	if (home_path == NULL)
-		return (NULL);
-
-	path_length = strlen(home_path) + strlen(HIST_FILE) + 2;
-	history_file_path = malloc(path_length);
-	if (history_file_path == NULL)
-		return (NULL);
-
-	snprintf(history_file_path, path_length, "%s/%s", home_path, HIST_FILE);
-	return (history_file_path);
-}
-
-/**
- * write_history_to_file - Write the history to a file.
- * @info: Pointer to the ArgumentsInfo structure.
- *
- * Return: 0 on success, -1 on failure.
- */
-int write_history_to_file(ArgumentsInfo *info)
-{
-	FILE *file;
-	char *history_file_path;
-	ListNode *current;
-	int linecount;
-
-	history_file_path = get_history_file_path(info);
-	if (history_file_path == NULL)
+	if (!filename)
 		return (-1);
-
-	file = fopen(history_file_path, "w");
-	free(history_file_path);
-
-	if (file == NULL)
+	fd = open(filename, O_CREAT | O_RDWR | O_APPEND, 00600);
+	if (fd < 0)
 		return (-1);
-
-	current = info->history;
-	linecount = 0;
-	while (current != NULL)
+	if (input)
 	{
-		fprintf(file, "%d %s\n", current->num, current->str);
-		current = current->next;
-		linecount++;
+		while (input[len])
+			len++;
+		w = write(fd, input, len);
+		if (w < 0)
+			return (-1);
 	}
-
-	fclose(file);
-	renumber_history_list(info);
-
-	return (linecount);
+	return (1);
 }
+/**
+ * free_env - Free Enviroment Variable Array
+ * @env:  Environment variables.
+ * Return: Void
+ */
+void free_env(char **env)
+{
+	int i;
 
+	for (i = 0; env[i]; i++)
+	{
+		free(env[i]);
+	}
+}
